@@ -5,12 +5,12 @@ export function Forms() {
     const formsState = useContext(Context);
 
     const onLogin1Change = (e: SyntheticEvent<HTMLInputElement>) => {
-        formsState?.updateLogin1(e.target.value);
+        formsState?.setLogin1(e.target.value);
     };
 
     const onLogin2Change = (e: SyntheticEvent<HTMLInputElement>) => {
-        formsState?.updateLogin2(e.target.value);
-        formsState?.updateLogin1(e.target.value);
+        formsState?.setLogin1(e.target.value);
+        formsState?.setLogin2(e.target.value);
     };
 
     return (
