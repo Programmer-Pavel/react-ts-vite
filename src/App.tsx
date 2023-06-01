@@ -1,80 +1,42 @@
-import { useEffect, useState } from "react";
+import { createContext, useCallback, useMemo, useState } from "react";
 import "./App.css";
-import InfiniteScroll from "react-infinite-scroll-component";
+import { Forms } from "./Forms";
 
-type Post = {
-    userId: number;
-    id: number;
-    title: string;
-    body: string;
+type Context = {
+    login1: string;
+    updateLogin1: (value: string) => void;
+    login2: string;
+    updateLogin2: (value: string) => void;
 };
 
+export const Context = createContext<Context | null>(null);
+
 function App() {
-    const [items, setItems] = useState<Post[]>([]);
-    const [hasMore, setHasMore] = useState<boolean>(true);
-    const [page, setPage] = useState<number>(1);
+    const [login1, setLogin1] = useState<string>("");
+    const [login2, setLogin2] = useState<string>("");
 
-    useEffect(() => {
-        if (items.length >= 100) {
-            setHasMore(false);
-        }
+    const updateLogin1 = useCallback((login: string) => {
+        setLogin1(login);
+    }, []);
 
-        (async () => {
-            const res = await fetch(
-                `https://jsonplaceholder.typicode.com/posts?_page=${page}&_limit=10`
-            );
-            const data: Post[] = await res.json();
-            setItems([...items, ...data]);
-        })();
-    }, [page]);
+    const updateLogin2 = useCallback((login: string) => {
+        setLogin2(login);
+    }, []);
 
-    const fetchData = () => {
-        setPage(page + 1);
-    };
+    const contextValue = useMemo(
+        () => ({
+            login1,
+            updateLogin1,
+            login2,
+            updateLogin2,
+        }),
+        [updateLogin1, login1, updateLogin2, login2]
+    );
 
     return (
-        <div
-            style={{
-                width: "800px",
-                height: "500px",
-                display: "flex",
-                justifyContent: "center",
-                backgroundColor: "#F0F8FF",
-                padding: "20px",
-                overflow: "auto",
-            }}
-            id="scrollableDiv"
-        >
-            <InfiniteScroll
-                dataLength={items.length}
-                next={fetchData}
-                hasMore={hasMore}
-                loader={<h4>Загрузка...</h4>}
-                endMessage={
-                    <p style={{ textAlign: "center" }}>
-                        <b>Постов больше нет!</b>
-                    </p>
-                }
-                scrollableTarget="scrollableDiv"
-            >
-                {items.map((item) => {
-                    return (
-                        <div
-                            style={{
-                                border: "1px solid black",
-                                width: "700px",
-                            }}
-                            key={item.id}
-                        >
-                            <h3>
-                                {item.id}) {item.title}
-                            </h3>
-                            <p>{item.body}</p>
-                        </div>
-                    );
-                })}
-            </InfiniteScroll>
-        </div>
+        <Context.Provider value={contextValue}>
+            <Forms />
+        </Context.Provider>
     );
 }
 
